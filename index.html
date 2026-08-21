@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ballast</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A2E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #E8ECEA;
+    --bg-2: #DCE2DF;
+    --ink: #1B2A2E;
+    --ink-soft: #435357;
+    --brass: #C98A3E;
+    --brass-soft: #E4C293;
+    --rust: #A8503A;
+    --moss: #7A9471;
+    --moss-soft: #DCE6D9;
+    --card-bg: #F4F2EC;
+    --line: rgba(27,42,46,0.12);
+    --radius: 18px;
+    --shadow: 0 2px 14px rgba(27,42,46,0.08);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 48px 0;
+    overflow-x: hidden;
+  }
+  .horizon{
+    position: relative;
+    height: 190px;
+    width: 100%;
+    overflow: hidden;
+    transition: background 2s ease;
+  }
+  .horizon::after{
+    content:"";
+    position:absolute; left:0; right:0; bottom:0;
+    height: 2px;
+    background: var(--rust);
+    opacity: 0.5;
+  }
+  .horizon-label{
+    position:absolute; top:14px; left:20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+  .brand{
+    position:absolute; top:14px; right:20px;
+    font-family:'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(255,255,255,0.9);
+  }
+  .daytype-toggle{
+    position:absolute; bottom: 16px; left: 20px; right:20px;
+    display:flex; gap:8px;
+  }
+  .daytype-toggle button{
+    flex:1;
+    padding: 8px 0;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.9);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor:pointer;
+  }
+  .daytype-toggle button.active{
+    background: rgba(255,255,255,0.9);
+    color: var(--ink);
+    border-color: transparent;
+  }
+
+  .content{
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 18px;
+  }
+
+  .now-card{
+    margin-top: -56px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 26px 22px 22px;
+    position: relative;
+    z-index: 2;
+  }
+  .now-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+  }
+  .tag{
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .tag.flex{ background: var(--moss-soft); color: #3F5A38; }
+  .tag.fixed{ background: #F1DAD3; color: var(--rust); }
+
+  .now-action{
+    font-family:'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 14px 0 20px;
+    min-height: 70px;
+  }
+  .now-buttons{ display:flex; gap: 10px; }
+  .btn{
+    flex:1;
+    padding: 13px 0;
+    border-radius: 12px;
+    border: none;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.08s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-done{ background: var(--ink); color: #F4F2EC; }
+  .btn-skip{ background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+
+  .next-hint{
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .section{
+    margin-top: 22px;
+  }
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    display:flex;
+    align-items:baseline;
+    gap: 8px;
+  }
+  .section-title .count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 400;
+  }
+
+  .card{
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 12px;
+  }
+
+  .laundry-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .load-pips{ display:flex; gap:6px; }
+  .pip{ width:12px; height:12px; border-radius:50%; background: var(--line); }
+  .pip.done{ background: var(--moss); }
+
+  .cycle{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .cycle:first-child{ border-top:none; padding-top:0; margin-top:0; }
+  .cycle-label{ font-size: 14px; font-weight: 500; }
+  .cycle-timer{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--brass);
+    min-width: 52px;
+    text-align:right;
+  }
+  .mini-btn{
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ink);
+    color: #F4F2EC;
+    font-size: 12px;
+    font-weight: 600;
+    cursor:pointer;
+  }
+  .mini-btn.ghost{
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .mini-btn:disabled{ opacity: 0.4; }
+
+  .dog-row{
+    display:flex; align-items:center; justify-content: space-between;
+  }
+  .dog-status{ font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .dog-status.due{ color: var(--rust); font-weight: 600; }
+
+  .tasklist{ display:flex; flex-direction:column; gap: 8px; }
+  .task-item{
+    display:flex; align-items:center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+  }
+  .task-item.done{ opacity: 0.45; }
+  .task-check{
+    width: 20px; height:20px; border-radius:6px;
+    border: 1.5px solid var(--line);
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .task-check.checked{ background: var(--moss); border-color: var(--moss); color:white; font-size:13px; }
+  .task-text{ font-size: 14px; flex:1; }
+  .task-time{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--rust);
+    min-width: 62px;
+  }
+  .task-item.done .task-time{ color: var(--ink-soft); }
+
+  .settings-note{
+    text-align:center;
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-top: 24px;
+    padding: 0 20px;
+    line-height: 1.6;
+  }
+  .settings-note button{
+    background:none; border:none; text-decoration: underline; color: var(--ink-soft);
+    font-size: 11px; cursor:pointer; padding:0;
+  }
+</style>
+</head>
+<body>
+
+<div class="horizon" id="horizon">
+  <div class="horizon-label" id="clock">--:--</div>
+  <div class="brand">Ballast</div>
+  <div class="daytype-toggle">
+    <button id="btn-weekday" class="active">Weekday</button>
+    <button id="btn-weekend">Weekend</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="now-card">
+    <div class="now-eyebrow">
+      <span>Right now</span>
+      <span class="tag flex" id="now-tag">flexible</span>
+    </div>
+    <div class="now-action" id="now-action">Tap start to begin your queue.</div>
+    <div class="now-buttons">
+      <button class="btn btn-done" id="btn-done">Done</button>
+      <button class="btn btn-skip" id="btn-skip">Not yet</button>
+    </div>
+    <div class="next-hint" id="next-hint"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Fixed today <span class="count" id="fixed-count"></span></div>
+    <div class="tasklist" id="fixed-list"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Laundry <span class="count" id="laundry-count">0 / 3 today</span></div>
+    <div class="card">
+      <div class="laundry-row">
+        <div class="load-pips" id="load-pips"></div>
+        <button class="mini-btn" id="btn-start-load">Start a load</button>
+      </div>
+      <div id="cycle-list"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Dogs</div>
+    <div class="card">
+      <div class="dog-row">
+        <div>
+          <div style="font-weight:500; font-size:14px;">Last time out</div>
+          <div class="dog-status" id="dog-status">—</div>
+        </div>
+        <button class="mini-btn" id="btn-dog-out">Out now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">House reset <span class="count" id="chore-count"></span></div>
+    <div class="tasklist" id="chore-list"></div>
+  </div>
+
+  <div class="settings-note" id="notif-note">
+    Enable notifications so nudges reach you even when the app's in the background.
+    <br><button id="btn-enable-notif">Turn on notifications</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------- State ---------- */
+const state = JSON.parse(localStorage.getItem('ballast_state') || '{}');
+state.dayType = state.dayType || 'weekday';
+state.loadsToday = state.loadsToday ?? 0;
+state.lastLoadDate = state.lastLoadDate || new Date().toDateString();
+state.cycles = state.cycles || []; // {id, stage: 'wash'|'dry', endsAt}
+state.lastDogOut = state.lastDogOut || null;
+state.nextDogGapMin = state.nextDogGapMin || (120 + Math.random()*60);
+state.chores = state.chores || {}; // id -> true/false, reset daily
+state.choreDate = state.choreDate || new Date().toDateString();
+state.fixedChecks = state.fixedChecks || {}; // id -> true/false, reset daily
+state.fixedDate = state.fixedDate || new Date().toDateString();
+state.queue = state.queue || [];
+state.nextNudgeAt = state.nextNudgeAt || null;
+state.currentTask = state.currentTask || null;
+
+function save(){ localStorage.setItem('ballast_state', JSON.stringify(state)); }
+
+// reset daily counters
+const today = new Date().toDateString();
+if(state.lastLoadDate !== today){ state.loadsToday = 0; state.lastLoadDate = today; }
+if(state.choreDate !== today){ state.chores = {}; state.choreDate = today; }
+if(state.fixedDate !== today){ state.fixedChecks = {}; state.fixedDate = today; }
+
+/* ---------- Fixed daily events (meds, feeds, vests, buses) ---------- */
+// time given as minutes-past-midnight; days: 'all' | 'weekday' | 'weekend'
+const fixedDefs = [
+  {id:'f01', min:285,  label:'Isaiah: Levo med', days:'all'},
+  {id:'f02', min:300,  label:'Isaiah & Timmy: CPT vest session 1', days:'all'},
+  {id:'f03', min:330,  label:'Isaiah & Timmy: breakfast (g-tube)', days:'all'},
+  {id:'f04', min:420,  label:'Kellan & Elliot: wake up', days:'weekday'},
+  {id:'f05', min:465,  label:'Isaiah & Timmy: morning meds', days:'all'},
+  {id:'f06', min:480,  label:'Isaiah & Timmy: bus', days:'weekday'},
+  {id:'f07', min:490,  label:'Kellan & Elliot: bus', days:'weekday'},
+  {id:'f08', min:495,  label:'Dogs: breakfast', days:'all'},
+  {id:'f09', min:720,  label:'Isaiah & Timmy: lunch feed (g-tube)', days:'weekend'},
+  {id:'f10', min:945,  label:'Isaiah: afternoon meds', days:'all'},
+  {id:'f11', min:960,  label:'Isaiah & Timmy: CPT vest session 2', days:'all'},
+  {id:'f12', min:1020, label:'Isaiah & Timmy: dinner (g-tube)', days:'all'},
+  {id:'f13', min:1050, label:'Start cooking dinner', days:'all'},
+  {id:'f14', min:1110, label:'Dinner served', days:'all'},
+  {id:'f15', min:1185, label:'Isaiah & Timmy: bedtime meds', days:'all'},
+  {id:'f16', min:1200, label:'Isaiah & Timmy: in bed', days:'all'},
+  {id:'f17', min:1230, label:'Kellan & Elliot: bedtime meds, quiet time', days:'all'},
+  {id:'f18', min:1245, label:'Timmy: start overnight feed', days:'all'},
+  {id:'f19', min:1290, label:'Kellan & Elliot: lights out', days:'all'},
+  {id:'f20', min:1425, label:'Isaiah: last baclofen + start overnight feed', days:'all'},
+];
+const fixedTimes = fixedDefs.map(f => f.min);
+function nearFixed(nowMin){
+  return fixedTimes.some(t => Math.abs(t - nowMin) < 12);
+}
+function fmtMin(min){
+  let h = Math.floor(min/60), m = min%60;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h===0) h = 12;
+  return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+/* ---------- Time helpers ---------- */
+function nowMinutes(){ const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
+function fmtClock(){
+  const d = new Date();
+  let h = d.getHours(), m = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h===0) h = 12;
+  return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+/* ---------- Horizon color by time of day ---------- */
+function updateHorizon(){
+  const m = nowMinutes();
+  const h = m/60;
+  let c1, c2;
+  if(h < 5.5)      { c1 = '#131A2B'; c2 = '#2B3A4F'; }      // pre-dawn
+  else if(h < 7.5) { c1 = '#3B4A5A'; c2 = '#C98A3E'; }      // dawn
+  else if(h < 16)  { c1 = '#4E6E76'; c2 = '#8FAEA6'; }      // day
+  else if(h < 18.5){ c1 = '#7A5C4E'; c2 = '#C98A3E'; }      // late afternoon
+  else if(h < 20.5){ c1 = '#3A2F45'; c2 = '#A8503A'; }      // dusk
+  else             { c1 = '#0F1620'; c2 = '#233246'; }      // night
+  document.getElementById('horizon').style.background = `linear-gradient(160deg, ${c1}, ${c2})`;
+  document.getElementById('clock').textContent = fmtClock();
+}
+
+/* ---------- Task pool ---------- */
+// window: [startMin, endMin], type: flexible tasks shown in "right now" queue
+function pool(){
+  const wd = state.dayType === 'weekday';
+  const items = [
+    // early scramble
+    {t:[345,420], txt:"Take the dogs out"},
+    {t:[345,420], txt:"Start getting Isaiah ready for school"},
+    {t:[375,450], txt:"Start getting Timmy ready"},
+    // 7-745 window
+    {t:[420,465], txt:"Check backpacks / school stuff are ready", wd:true},
+    {t:[420,465], txt:"Redirect check: Kellan"},
+    {t:[420,465], txt:"Redirect check: Elliot"},
+    // main flexible block 830-1610 (8:30am-4pm ish, weekday heavier)
+    {t:[510,570], txt:"Shower / get ready (30 min block)"},
+    {t:[510,960], txt:"Unload + reload dishwasher"},
+    {t:[510,960], txt:"Tidy living room"},
+    {t:[510,960], txt:"Scoop litter boxes"},
+    {t:[510,960], txt:"Tidy bedroom"},
+    {t:[510,960], txt:"Tidy bathroom"},
+    {t:[600,900], txt:"90-min gym block \u2014 go now if you're going"},
+    // after school
+    {t:[930,960], txt:"Change Isaiah", wd:true},
+    {t:[930,960], txt:"Change Timmy", wd:true},
+    {t:[930,975], txt:"Redirect: snack \u2192 dogs out \u2192 homework (Kellan)", wd:true},
+    {t:[930,975], txt:"Redirect: snack \u2192 dogs out \u2192 homework (Elliot)", wd:true},
+    // evening
+    {t:[1110,1170], txt:"Clean up after dinner"},
+    {t:[1140,1215], txt:"Start getting Isaiah & Timmy ready for bed"},
+    {t:[1140,1170], txt:"Kellan & Elliot: showers, pjs by 8:30"},
+  ];
+  return items.filter(i => nowInRange(i.t) && (i.wd === undefined || i.wd === wd));
+}
+function nowInRange(range){
+  const m = nowMinutes();
+  return m >= range[0] && m <= range[1];
+}
+
+function pickTask(){
+  const candidates = pool();
+  if(candidates.length === 0) return "Nothing urgent right now \u2014 breathe.";
+  return candidates[Math.floor(Math.random()*candidates.length)].txt;
+}
+
+/* ---------- Right-now queue engine ---------- */
+function showCurrentTask(){
+  if(!state.currentTask){ state.currentTask = pickTask(); save(); }
+  document.getElementById('now-action').textContent = state.currentTask;
+}
+function scheduleNextNudge(){
+  let gapMin = 8 + Math.random()*15; // 8-23 min variable interval
+  let target = nowMinutes() + gapMin;
+  // nudge into next slot away from fixed alarms
+  let tries = 0;
+  while(nearFixed(Math.round(target)) && tries < 5){ target += 5; tries++; }
+  state.nextNudgeAt = Date.now() + gapMin*60000;
+  save();
+  updateNextHint();
+}
+function updateNextHint(){
+  if(!state.nextNudgeAt) return;
+  const secsLeft = Math.max(0, Math.round((state.nextNudgeAt - Date.now())/1000));
+  const m = Math.floor(secsLeft/60), s = secsLeft%60;
+  document.getElementById('next-hint').textContent = `next nudge in ${m}:${s.toString().padStart(2,'0')}`;
+}
+function maybeFireNudge(){
+  if(state.nextNudgeAt && Date.now() >= state.nextNudgeAt){
+    state.currentTask = pickTask();
+    save();
+    showCurrentTask();
+    notify("Right now", state.currentTask);
+    scheduleNextNudge();
+  }
+}
+function notify(title, body){
+  if(window.Notification && Notification.permission === 'granted'){
+    try{ new Notification(title, {body, icon:'icon-192.png'}); }catch(e){}
+  }
+}
+
+document.getElementById('btn-done').addEventListener('click', () => {
+  state.currentTask = pickTask();
+  save();
+  showCurrentTask();
+  scheduleNextNudge();
+});
+document.getElementById('btn-skip').addEventListener('click', () => {
+  state.currentTask = pickTask();
+  save();
+  showCurrentTask();
+});
+
+/* ---------- Day type toggle ---------- */
+function renderDayToggle(){
+  document.getElementById('btn-weekday').classList.toggle('active', state.dayType==='weekday');
+  document.getElementById('btn-weekend').classList.toggle('active', state.dayType==='weekend');
+}
+document.getElementById('btn-weekday').addEventListener('click', () => { state.dayType='weekday'; save(); renderDayToggle(); renderChores(); renderFixed(); });
+document.getElementById('btn-weekend').addEventListener('click', () => { state.dayType='weekend'; save(); renderDayToggle(); renderChores(); renderFixed(); });
+
+/* ---------- Laundry ---------- */
+const WASH_MIN = 55, DRY_MIN = 90;
+function renderLoadPips(){
+  const el = document.getElementById('load-pips');
+  el.innerHTML = '';
+  for(let i=0;i<3;i++){
+    const d = document.createElement('div');
+    d.className = 'pip' + (i < state.loadsToday ? ' done' : '');
+    el.appendChild(d);
+  }
+  document.getElementById('laundry-count').textContent = `${state.loadsToday} / 3 today`;
+}
+document.getElementById('btn-start-load').addEventListener('click', () => {
+  const id = Date.now();
+  state.cycles.push({id, stage:'wash', endsAt: Date.now() + WASH_MIN*60000});
+  save();
+  renderCycles();
+});
+function renderCycles(){
+  const el = document.getElementById('cycle-list');
+  el.innerHTML = '';
+  state.cycles.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'cycle';
+    const remaining = Math.max(0, Math.round((c.endsAt - Date.now())/1000));
+    const mm = Math.floor(remaining/60), ss = remaining%60;
+    const label = c.stage === 'wash' ? 'Washing' : 'Drying';
+    row.innerHTML = `
+      <div class="cycle-label">${label}</div>
+      <div class="cycle-timer">${remaining>0 ? mm+':'+ss.toString().padStart(2,'0') : 'done'}</div>
+      <div></div>
+    `;
+    const actionWrap = row.querySelector('div:last-child');
+    if(remaining <= 0){
+      const btn = document.createElement('button');
+      btn.className = 'mini-btn';
+      btn.textContent = c.stage === 'wash' ? 'Move to dryer' : 'Folded & away';
+      btn.addEventListener('click', () => {
+        if(c.stage === 'wash'){
+          c.stage = 'dry';
+          c.endsAt = Date.now() + DRY_MIN*60000;
+        } else {
+          state.cycles = state.cycles.filter(x => x.id !== c.id);
+          state.loadsToday += 1;
+          renderLoadPips();
+        }
+        save();
+        renderCycles();
+      });
+      actionWrap.appendChild(btn);
+    }
+    el.appendChild(row);
+  });
+}
+
+/* ---------- Dogs ---------- */
+function renderDogStatus(){
+  const el = document.getElementById('dog-status');
+  if(!state.lastDogOut){ el.textContent = 'Not logged yet today'; el.classList.remove('due'); return; }
+  const mins = Math.round((Date.now() - state.lastDogOut)/60000);
+  const h = Math.floor(mins/60), m = mins%60;
+  const timeAgo = h > 0 ? `${h}h ${m}m ago` : `${m}m ago`;
+  const dueIn = state.nextDogGapMin - mins;
+  if(dueIn <= 0){
+    el.textContent = `${timeAgo} \u2014 due now`;
+    el.classList.add('due');
+  } else {
+    el.textContent = `${timeAgo} \u2014 due in ~${Math.round(dueIn)}m`;
+    el.classList.remove('due');
+  }
+}
+document.getElementById('btn-dog-out').addEventListener('click', () => {
+  state.lastDogOut = Date.now();
+  state.nextDogGapMin = 120 + Math.random()*60; // 2-3 hr variable
+  save();
+  renderDogStatus();
+});
+
+/* ---------- Fixed events checklist (mirrors the phone alarms) ---------- */
+function renderFixed(){
+  const el = document.getElementById('fixed-list');
+  el.innerHTML = '';
+  const wd = state.dayType === 'weekday';
+  const todays = fixedDefs
+    .filter(f => f.days === 'all' || (f.days === 'weekday' && wd) || (f.days === 'weekend' && !wd))
+    .sort((a,b) => a.min - b.min);
+  let doneCount = 0;
+  todays.forEach(f => {
+    const isDone = !!state.fixedChecks[f.id];
+    if(isDone) doneCount++;
+    const item = document.createElement('div');
+    item.className = 'task-item' + (isDone ? ' done' : '');
+    item.innerHTML = `<span class="task-time">${fmtMin(f.min)}</span><div class="task-check ${isDone?'checked':''}">${isDone?'✓':''}</div><div class="task-text">${f.label}</div>`;
+    item.querySelector('.task-check').addEventListener('click', () => {
+      state.fixedChecks[f.id] = !isDone;
+      save();
+      renderFixed();
+    });
+    el.appendChild(item);
+  });
+  document.getElementById('fixed-count').textContent = `${doneCount} / ${todays.length}`;
+}
+
+/* ---------- Chores checklist (persists as daily checkbox list, separate from queue) ---------- */
+const choreDefs = ['Dishwasher unload/reload','Living room tidy','Litter boxes scooped','Bedroom tidy','Bathroom tidy'];
+function renderChores(){
+  const el = document.getElementById('chore-list');
+  el.innerHTML = '';
+  let doneCount = 0;
+  choreDefs.forEach((label, i) => {
+    const key = 'chore_'+i;
+    const isDone = !!state.chores[key];
+    if(isDone) doneCount++;
+    const item = document.createElement('div');
+    item.className = 'task-item' + (isDone ? ' done' : '');
+    item.innerHTML = `<div class="task-check ${isDone?'checked':''}">${isDone?'✓':''}</div><div class="task-text">${label}</div>`;
+    item.querySelector('.task-check').addEventListener('click', () => {
+      state.chores[key] = !isDone;
+      save();
+      renderChores();
+    });
+    el.appendChild(item);
+  });
+  document.getElementById('chore-count').textContent = `${doneCount} / ${choreDefs.length}`;
+}
+
+/* ---------- Notifications permission ---------- */
+document.getElementById('btn-enable-notif').addEventListener('click', () => {
+  if(window.Notification){
+    Notification.requestPermission().then(perm => {
+      if(perm === 'granted'){
+        document.getElementById('notif-note').style.display = 'none';
+      }
+    });
+  }
+});
+if(window.Notification && Notification.permission === 'granted'){
+  document.getElementById('notif-note').style.display = 'none';
+}
+
+/* ---------- Init ---------- */
+renderDayToggle();
+renderLoadPips();
+renderCycles();
+renderDogStatus();
+renderChores();
+renderFixed();
+showCurrentTask();
+if(!state.nextNudgeAt) scheduleNextNudge();
+updateHorizon();
+updateNextHint();
+
+setInterval(() => {
+  updateHorizon();
+  updateNextHint();
+  renderCycles();
+  renderDogStatus();
+  maybeFireNudge();
+}, 1000);
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
