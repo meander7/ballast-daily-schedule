@@ -228,6 +228,9 @@
   .dog-status{ font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
   .dog-status.due{ color: var(--rust); font-weight: 600; }
 
+  .dog-meals{ display:flex; gap:20px; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+  .meal-check{ display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; }
+
   .tasklist{ display:flex; flex-direction:column; gap: 8px; }
   .task-item{
     display:flex; align-items:center; gap: 10px;
@@ -253,6 +256,38 @@
     min-width: 62px;
   }
   .task-item.done .task-time{ color: var(--ink-soft); }
+  .task-delete{
+    background:none; border:none; color:var(--ink-soft); font-size:16px; cursor:pointer; padding:0 2px; line-height:1;
+  }
+
+  .add-task-row{ display:flex; gap:8px; margin-bottom:10px; }
+  .add-task-row input{
+    flex:1;
+    padding:9px 12px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--card-bg);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .add-task-row input:focus{ outline:2px solid var(--brass-soft); }
+
+  .footer-bar{
+    display:flex; justify-content:center; gap:18px;
+    margin-top: 30px;
+  }
+  .icon-btn{
+    width:36px; height:36px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background: var(--card-bg);
+    color: var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:15px;
+  }
+  .icon-btn:active{ transform: scale(0.94); }
 
   .settings-note{
     text-align:center;
@@ -266,6 +301,54 @@
     background:none; border:none; text-decoration: underline; color: var(--ink-soft);
     font-size: 11px; cursor:pointer; padding:0;
   }
+
+  .modal-overlay{
+    display:none;
+    position:fixed; inset:0;
+    background: rgba(27,42,46,0.55);
+    z-index: 10;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-sheet{
+    background: var(--bg);
+    width:100%; max-width:480px;
+    border-radius: 20px 20px 0 0;
+    padding: 18px 18px 28px;
+    max-height: 82vh;
+    overflow-y:auto;
+  }
+  .modal-header{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:14px;
+  }
+  .modal-header h3{
+    font-family:'Fraunces', serif; font-size:18px; margin:0; font-weight:600;
+  }
+  .modal-close{ background:none; border:none; font-size:20px; color:var(--ink-soft); cursor:pointer; }
+
+  .cal-nav{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .cal-nav button{ background:none; border:none; font-size:16px; color:var(--ink); cursor:pointer; padding:4px 10px; }
+  .cal-month-label{ font-family:'IBM Plex Mono', monospace; font-size:13px; letter-spacing:0.05em; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:16px; }
+  .cal-dow{ text-align:center; font-size:10px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; padding-bottom:4px; }
+  .cal-day{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    border-radius:8px; font-size:12px; cursor:pointer; position:relative;
+    background: var(--card-bg);
+  }
+  .cal-day.empty{ background:none; cursor:default; }
+  .cal-day.has-data::after{
+    content:""; position:absolute; bottom:4px; width:4px; height:4px; border-radius:50%; background:var(--brass);
+  }
+  .cal-day.selected{ background: var(--ink); color:#F4F2EC; }
+  .cal-day.today{ border:1.5px solid var(--brass); }
+
+  .day-detail{ display:flex; flex-direction:column; gap:8px; }
+  .detail-row{ display:flex; justify-content:space-between; font-size:13px; padding:9px 12px; background:var(--card-bg); border-radius:8px; }
+  .detail-row span:last-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); }
+  .detail-empty{ text-align:center; font-size:13px; color:var(--ink-soft); padding:20px 0; }
 </style>
 </head>
 <body>
@@ -320,12 +403,50 @@
         </div>
         <button class="mini-btn" id="btn-dog-out">Out now</button>
       </div>
+      <div class="dog-meals">
+        <div class="meal-check" id="dog-breakfast-row"><div class="task-check" id="dog-breakfast-check"></div> Breakfast</div>
+        <div class="meal-check" id="dog-dinner-row"><div class="task-check" id="dog-dinner-check"></div> Dinner</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Diaper changes</div>
+    <div class="card">
+      <div class="dog-row">
+        <div>
+          <div style="font-weight:500; font-size:14px;">Isaiah</div>
+          <div class="dog-status" id="diaper-isaiah-status">—</div>
+        </div>
+        <button class="mini-btn" id="btn-diaper-isaiah">Changed</button>
+      </div>
+      <div class="dog-row" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--line);">
+        <div>
+          <div style="font-weight:500; font-size:14px;">Timmy</div>
+          <div class="dog-status" id="diaper-timmy-status">—</div>
+        </div>
+        <button class="mini-btn" id="btn-diaper-timmy">Changed</button>
+      </div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-title">House reset <span class="count" id="chore-count"></span></div>
     <div class="tasklist" id="chore-list"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Just for today</div>
+    <div class="add-task-row">
+      <input type="text" id="custom-task-input" placeholder="Add something for today only…" maxlength="80">
+      <button class="mini-btn" id="btn-add-custom">Add</button>
+    </div>
+    <div class="tasklist" id="custom-task-list"></div>
+  </div>
+
+  <div class="footer-bar">
+    <button class="icon-btn" id="btn-history" title="History">📅</button>
+    <button class="icon-btn" id="btn-reset-day" title="Reset today (testing)">↺</button>
   </div>
 
   <div class="settings-note" id="notif-note">
@@ -335,30 +456,58 @@
 
 </div>
 
+<div class="modal-overlay" id="history-modal">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h3>History</h3>
+      <button class="modal-close" id="btn-close-history">✕</button>
+    </div>
+    <div class="cal-nav">
+      <button id="cal-prev">‹</button>
+      <span class="cal-month-label" id="cal-month-label"></span>
+      <button id="cal-next">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="day-detail" id="day-detail"></div>
+  </div>
+</div>
+
 <script>
+/* ---------- Date helpers ---------- */
+function isoDate(d){
+  d = d || new Date();
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function autoDayType(d){
+  d = d || new Date();
+  const dow = d.getDay(); // 0 = Sunday, 6 = Saturday
+  return (dow === 0 || dow === 6) ? 'weekend' : 'weekday';
+}
+
 /* ---------- State ---------- */
 const state = JSON.parse(localStorage.getItem('ballast_state') || '{}');
-state.dayType = state.dayType || 'weekday';
+state.currentDate = state.currentDate || isoDate();
+state.dayType = state.dayType || autoDayType();
 state.loadsToday = state.loadsToday ?? 0;
-state.lastLoadDate = state.lastLoadDate || new Date().toDateString();
-state.cycles = state.cycles || []; // {id, stage: 'wash'|'dry', endsAt}
+state.cycles = state.cycles || []; // {id, stage:'wash'|'dry', endsAt}
 state.lastDogOut = state.lastDogOut || null;
 state.nextDogGapMin = state.nextDogGapMin || (120 + Math.random()*60);
-state.chores = state.chores || {}; // id -> true/false, reset daily
-state.choreDate = state.choreDate || new Date().toDateString();
-state.fixedChecks = state.fixedChecks || {}; // id -> true/false, reset daily
-state.fixedDate = state.fixedDate || new Date().toDateString();
+state.dogOutCount = state.dogOutCount ?? 0;
+state.dogMeals = state.dogMeals || {breakfast:false, dinner:false};
+state.chores = state.chores || {};
+state.fixedChecks = state.fixedChecks || {};
+state.customTasks = state.customTasks || []; // {id, text, done}
+state.diaper = state.diaper || {
+  isaiah: {last:null, gap: 90 + Math.random()*60, count:0},
+  timmy:  {last:null, gap: 90 + Math.random()*60, count:0}
+};
+state.history = state.history || {};
 state.queue = state.queue || [];
 state.nextNudgeAt = state.nextNudgeAt || null;
 state.currentTask = state.currentTask || null;
 
 function save(){ localStorage.setItem('ballast_state', JSON.stringify(state)); }
-
-// reset daily counters
-const today = new Date().toDateString();
-if(state.lastLoadDate !== today){ state.loadsToday = 0; state.lastLoadDate = today; }
-if(state.choreDate !== today){ state.chores = {}; state.choreDate = today; }
-if(state.fixedDate !== today){ state.fixedChecks = {}; state.fixedDate = today; }
 
 /* ---------- Fixed daily events (meds, feeds, vests, buses) ---------- */
 // time given as minutes-past-midnight; days: 'all' | 'weekday' | 'weekend'
@@ -370,19 +519,18 @@ const fixedDefs = [
   {id:'f05', min:465,  label:'Isaiah & Timmy: morning meds', days:'all'},
   {id:'f06', min:480,  label:'Isaiah & Timmy: bus', days:'weekday'},
   {id:'f07', min:490,  label:'Kellan & Elliot: bus', days:'weekday'},
-  {id:'f08', min:495,  label:'Dogs: breakfast', days:'all'},
-  {id:'f09', min:720,  label:'Isaiah & Timmy: lunch feed (g-tube)', days:'weekend'},
-  {id:'f10', min:945,  label:'Isaiah: afternoon meds', days:'all'},
-  {id:'f11', min:960,  label:'Isaiah & Timmy: CPT vest session 2', days:'all'},
-  {id:'f12', min:1020, label:'Isaiah & Timmy: dinner (g-tube)', days:'all'},
-  {id:'f13', min:1050, label:'Start cooking dinner', days:'all'},
-  {id:'f14', min:1110, label:'Dinner served', days:'all'},
-  {id:'f15', min:1185, label:'Isaiah & Timmy: bedtime meds', days:'all'},
-  {id:'f16', min:1200, label:'Isaiah & Timmy: in bed', days:'all'},
-  {id:'f17', min:1230, label:'Kellan & Elliot: bedtime meds, quiet time', days:'all'},
-  {id:'f18', min:1245, label:'Timmy: start overnight feed', days:'all'},
-  {id:'f19', min:1290, label:'Kellan & Elliot: lights out', days:'all'},
-  {id:'f20', min:1425, label:'Isaiah: last baclofen + start overnight feed', days:'all'},
+  {id:'f08', min:720,  label:'Isaiah & Timmy: lunch feed (g-tube)', days:'weekend'},
+  {id:'f09', min:945,  label:'Isaiah: afternoon meds', days:'all'},
+  {id:'f10', min:960,  label:'Isaiah & Timmy: CPT vest session 2', days:'all'},
+  {id:'f11', min:1020, label:'Isaiah & Timmy: dinner (g-tube)', days:'all'},
+  {id:'f12', min:1050, label:'Start cooking dinner', days:'all'},
+  {id:'f13', min:1110, label:'Dinner served', days:'all'},
+  {id:'f14', min:1185, label:'Isaiah & Timmy: bedtime meds', days:'all'},
+  {id:'f15', min:1200, label:'Isaiah & Timmy: in bed', days:'all'},
+  {id:'f16', min:1230, label:'Kellan & Elliot: bedtime meds, quiet time', days:'all'},
+  {id:'f17', min:1245, label:'Timmy: start overnight feed', days:'all'},
+  {id:'f18', min:1290, label:'Kellan & Elliot: lights out', days:'all'},
+  {id:'f19', min:1425, label:'Isaiah: last baclofen + start overnight feed', days:'all'},
 ];
 const fixedTimes = fixedDefs.map(f => f.min);
 function nearFixed(nowMin){
@@ -394,6 +542,54 @@ function fmtMin(min){
   h = h % 12; if(h===0) h = 12;
   return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
 }
+const choreDefs = ['Dishwasher unload/reload','Living room tidy','Litter boxes scooped','Bedroom tidy','Bathroom tidy'];
+
+/* ---------- Daily rollover: archive yesterday into history, reset today's counters ---------- */
+function fixedTotalFor(dayType){
+  return fixedDefs.filter(f => f.days === 'all' || (f.days === 'weekday' && dayType === 'weekday') || (f.days === 'weekend' && dayType === 'weekend')).length;
+}
+function snapshotToday(){
+  return {
+    dayType: state.dayType,
+    fixedDone: Object.values(state.fixedChecks).filter(Boolean).length,
+    fixedTotal: fixedTotalFor(state.dayType),
+    choreDone: Object.values(state.chores).filter(Boolean).length,
+    choreTotal: choreDefs.length,
+    loads: state.loadsToday,
+    dogOutCount: state.dogOutCount,
+    dogBreakfast: state.dogMeals.breakfast,
+    dogDinner: state.dogMeals.dinner,
+    diaperIsaiah: state.diaper.isaiah.count,
+    diaperTimmy: state.diaper.timmy.count,
+    customDone: state.customTasks.filter(t => t.done).length,
+    customTotal: state.customTasks.length
+  };
+}
+function rolloverIfNewDay(force){
+  const today = isoDate();
+  if(force || state.currentDate !== today){
+    if(state.currentDate){
+      state.history[state.currentDate] = snapshotToday();
+    }
+    state.currentDate = today;
+    state.dayType = autoDayType();
+    state.loadsToday = 0;
+    state.cycles = [];
+    state.chores = {};
+    state.fixedChecks = {};
+    state.customTasks = [];
+    state.dogOutCount = 0;
+    state.dogMeals = {breakfast:false, dinner:false};
+    state.diaper = {
+      isaiah: {last:null, gap: 90 + Math.random()*60, count:0},
+      timmy:  {last:null, gap: 90 + Math.random()*60, count:0}
+    };
+    state.currentTask = null;
+    state.nextNudgeAt = null;
+    save();
+  }
+}
+rolloverIfNewDay(false);
 
 /* ---------- Time helpers ---------- */
 function nowMinutes(){ const d = new Date(); return d.getHours()*60 + d.getMinutes(); }
@@ -421,19 +617,15 @@ function updateHorizon(){
 }
 
 /* ---------- Task pool ---------- */
-// window: [startMin, endMin], type: flexible tasks shown in "right now" queue
 function pool(){
   const wd = state.dayType === 'weekday';
   const items = [
-    // early scramble
     {t:[345,420], txt:"Take the dogs out"},
     {t:[345,420], txt:"Start getting Isaiah ready for school"},
     {t:[375,450], txt:"Start getting Timmy ready"},
-    // 7-745 window
     {t:[420,465], txt:"Check backpacks / school stuff are ready", wd:true},
     {t:[420,465], txt:"Redirect check: Kellan"},
     {t:[420,465], txt:"Redirect check: Elliot"},
-    // main flexible block 830-1610 (8:30am-4pm ish, weekday heavier)
     {t:[510,570], txt:"Shower / get ready (30 min block)"},
     {t:[510,960], txt:"Unload + reload dishwasher"},
     {t:[510,960], txt:"Tidy living room"},
@@ -441,12 +633,10 @@ function pool(){
     {t:[510,960], txt:"Tidy bedroom"},
     {t:[510,960], txt:"Tidy bathroom"},
     {t:[600,900], txt:"90-min gym block \u2014 go now if you're going"},
-    // after school
     {t:[930,960], txt:"Change Isaiah", wd:true},
     {t:[930,960], txt:"Change Timmy", wd:true},
     {t:[930,975], txt:"Redirect: snack \u2192 dogs out \u2192 homework (Kellan)", wd:true},
     {t:[930,975], txt:"Redirect: snack \u2192 dogs out \u2192 homework (Elliot)", wd:true},
-    // evening
     {t:[1110,1170], txt:"Clean up after dinner"},
     {t:[1140,1215], txt:"Start getting Isaiah & Timmy ready for bed"},
     {t:[1140,1170], txt:"Kellan & Elliot: showers, pjs by 8:30"},
@@ -457,11 +647,12 @@ function nowInRange(range){
   const m = nowMinutes();
   return m >= range[0] && m <= range[1];
 }
-
 function pickTask(){
-  const candidates = pool();
+  // include today-only custom tasks not yet done, mixed into the pool
+  const customOpen = state.customTasks.filter(t => !t.done).map(t => t.text);
+  const candidates = pool().map(i => i.txt).concat(customOpen);
   if(candidates.length === 0) return "Nothing urgent right now \u2014 breathe.";
-  return candidates[Math.floor(Math.random()*candidates.length)].txt;
+  return candidates[Math.floor(Math.random()*candidates.length)];
 }
 
 /* ---------- Right-now queue engine ---------- */
@@ -470,9 +661,8 @@ function showCurrentTask(){
   document.getElementById('now-action').textContent = state.currentTask;
 }
 function scheduleNextNudge(){
-  let gapMin = 8 + Math.random()*15; // 8-23 min variable interval
+  let gapMin = 8 + Math.random()*15;
   let target = nowMinutes() + gapMin;
-  // nudge into next slot away from fixed alarms
   let tries = 0;
   while(nearFixed(Math.round(target)) && tries < 5){ target += 5; tries++; }
   state.nextNudgeAt = Date.now() + gapMin*60000;
@@ -499,7 +689,6 @@ function notify(title, body){
     try{ new Notification(title, {body, icon:'icon-192.png'}); }catch(e){}
   }
 }
-
 document.getElementById('btn-done').addEventListener('click', () => {
   state.currentTask = pickTask();
   save();
@@ -512,7 +701,7 @@ document.getElementById('btn-skip').addEventListener('click', () => {
   showCurrentTask();
 });
 
-/* ---------- Day type toggle ---------- */
+/* ---------- Day type toggle (auto-set daily, manually overridable) ---------- */
 function renderDayToggle(){
   document.getElementById('btn-weekday').classList.toggle('active', state.dayType==='weekday');
   document.getElementById('btn-weekend').classList.toggle('active', state.dayType==='weekend');
@@ -593,9 +782,58 @@ function renderDogStatus(){
 }
 document.getElementById('btn-dog-out').addEventListener('click', () => {
   state.lastDogOut = Date.now();
-  state.nextDogGapMin = 120 + Math.random()*60; // 2-3 hr variable
+  state.nextDogGapMin = 120 + Math.random()*60;
+  state.dogOutCount += 1;
   save();
   renderDogStatus();
+});
+function renderDogMeals(){
+  const bEl = document.getElementById('dog-breakfast-check');
+  const dEl = document.getElementById('dog-dinner-check');
+  bEl.className = 'task-check' + (state.dogMeals.breakfast ? ' checked' : '');
+  bEl.textContent = state.dogMeals.breakfast ? '✓' : '';
+  dEl.className = 'task-check' + (state.dogMeals.dinner ? ' checked' : '');
+  dEl.textContent = state.dogMeals.dinner ? '✓' : '';
+}
+document.getElementById('dog-breakfast-row').addEventListener('click', () => {
+  state.dogMeals.breakfast = !state.dogMeals.breakfast;
+  save(); renderDogMeals();
+});
+document.getElementById('dog-dinner-row').addEventListener('click', () => {
+  state.dogMeals.dinner = !state.dogMeals.dinner;
+  save(); renderDogMeals();
+});
+
+/* ---------- Diaper changes ---------- */
+function renderDiaper(){
+  ['isaiah','timmy'].forEach(kid => {
+    const el = document.getElementById(`diaper-${kid}-status`);
+    const d = state.diaper[kid];
+    if(!d.last){ el.textContent = 'Not logged yet today'; el.classList.remove('due'); return; }
+    const mins = Math.round((Date.now() - d.last)/60000);
+    const h = Math.floor(mins/60), m = mins%60;
+    const timeAgo = h > 0 ? `${h}h ${m}m ago` : `${m}m ago`;
+    const dueIn = d.gap - mins;
+    if(dueIn <= 0){
+      el.textContent = `${timeAgo} \u2014 due now`;
+      el.classList.add('due');
+    } else {
+      el.textContent = `${timeAgo} \u2014 due in ~${Math.round(dueIn)}m`;
+      el.classList.remove('due');
+    }
+  });
+}
+document.getElementById('btn-diaper-isaiah').addEventListener('click', () => {
+  state.diaper.isaiah.last = Date.now();
+  state.diaper.isaiah.gap = 90 + Math.random()*60;
+  state.diaper.isaiah.count += 1;
+  save(); renderDiaper();
+});
+document.getElementById('btn-diaper-timmy').addEventListener('click', () => {
+  state.diaper.timmy.last = Date.now();
+  state.diaper.timmy.gap = 90 + Math.random()*60;
+  state.diaper.timmy.count += 1;
+  save(); renderDiaper();
 });
 
 /* ---------- Fixed events checklist (mirrors the phone alarms) ---------- */
@@ -623,8 +861,7 @@ function renderFixed(){
   document.getElementById('fixed-count').textContent = `${doneCount} / ${todays.length}`;
 }
 
-/* ---------- Chores checklist (persists as daily checkbox list, separate from queue) ---------- */
-const choreDefs = ['Dishwasher unload/reload','Living room tidy','Litter boxes scooped','Bedroom tidy','Bathroom tidy'];
+/* ---------- Chores checklist ---------- */
 function renderChores(){
   const el = document.getElementById('chore-list');
   el.innerHTML = '';
@@ -646,6 +883,128 @@ function renderChores(){
   document.getElementById('chore-count').textContent = `${doneCount} / ${choreDefs.length}`;
 }
 
+/* ---------- Custom "just for today" tasks ---------- */
+function renderCustomTasks(){
+  const el = document.getElementById('custom-task-list');
+  el.innerHTML = '';
+  state.customTasks.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'task-item' + (t.done ? ' done' : '');
+    item.innerHTML = `<div class="task-check ${t.done?'checked':''}">${t.done?'✓':''}</div><div class="task-text">${t.text}</div><button class="task-delete">✕</button>`;
+    item.querySelector('.task-check').addEventListener('click', () => {
+      t.done = !t.done; save(); renderCustomTasks();
+    });
+    item.querySelector('.task-delete').addEventListener('click', () => {
+      state.customTasks = state.customTasks.filter(x => x.id !== t.id);
+      save(); renderCustomTasks();
+    });
+    el.appendChild(item);
+  });
+}
+document.getElementById('btn-add-custom').addEventListener('click', addCustomTask);
+document.getElementById('custom-task-input').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') addCustomTask();
+});
+function addCustomTask(){
+  const input = document.getElementById('custom-task-input');
+  const text = input.value.trim();
+  if(!text) return;
+  state.customTasks.push({id: Date.now(), text, done:false});
+  input.value = '';
+  save();
+  renderCustomTasks();
+}
+
+/* ---------- Reset day (testing utility) ---------- */
+document.getElementById('btn-reset-day').addEventListener('click', () => {
+  if(confirm("Reset all of today's progress? This clears checkmarks, timers, and today-only items. Can't be undone.")){
+    rolloverIfNewDay(true);
+    renderDayToggle();
+    renderLoadPips();
+    renderCycles();
+    renderDogStatus();
+    renderDogMeals();
+    renderDiaper();
+    renderChores();
+    renderFixed();
+    renderCustomTasks();
+    showCurrentTask();
+    scheduleNextNudge();
+  }
+});
+
+/* ---------- History / calendar ---------- */
+let calViewDate = new Date();
+let selectedHistDate = null;
+const modal = document.getElementById('history-modal');
+document.getElementById('btn-history').addEventListener('click', () => {
+  calViewDate = new Date();
+  selectedHistDate = isoDate();
+  modal.classList.add('open');
+  renderCalendar();
+});
+document.getElementById('btn-close-history').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('open'); });
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calViewDate.setMonth(calViewDate.getMonth()-1); renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  calViewDate.setMonth(calViewDate.getMonth()+1); renderCalendar();
+});
+function renderCalendar(){
+  const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+  document.getElementById('cal-month-label').textContent = calViewDate.toLocaleDateString('en-US',{month:'long', year:'numeric'});
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['S','M','T','W','T','F','S'].forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow'; el.textContent = d;
+    grid.appendChild(el);
+  });
+  const firstDow = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const todayIso = isoDate();
+  for(let i=0;i<firstDow;i++){
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.appendChild(el);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const dIso = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    if(state.history[dIso] || dIso === state.currentDate) el.classList.add('has-data');
+    if(dIso === todayIso) el.classList.add('today');
+    if(dIso === selectedHistDate) el.classList.add('selected');
+    el.textContent = day;
+    el.addEventListener('click', () => { selectedHistDate = dIso; renderCalendar(); renderDayDetail(dIso); });
+    grid.appendChild(el);
+  }
+  renderDayDetail(selectedHistDate);
+}
+function renderDayDetail(dIso){
+  const el = document.getElementById('day-detail');
+  let data = state.history[dIso];
+  if(dIso === state.currentDate) data = snapshotToday();
+  if(!data){
+    el.innerHTML = `<div class="detail-empty">No data for this day.</div>`;
+    return;
+  }
+  const rows = [
+    ['Day type', data.dayType],
+    ['Fixed items', `${data.fixedDone} / ${data.fixedTotal}`],
+    ['House reset', `${data.choreDone} / ${data.choreTotal}`],
+    ['Laundry loads', data.loads],
+    ['Dogs out', `${data.dogOutCount}\u00d7`],
+    ['Dog breakfast', data.dogBreakfast ? 'yes' : 'no'],
+    ['Dog dinner', data.dogDinner ? 'yes' : 'no'],
+    ['Isaiah diaper changes', `${data.diaperIsaiah}\u00d7`],
+    ['Timmy diaper changes', `${data.diaperTimmy}\u00d7`],
+    ['Just-for-today items', `${data.customDone} / ${data.customTotal}`],
+  ];
+  el.innerHTML = rows.map(r => `<div class="detail-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+}
+
 /* ---------- Notifications permission ---------- */
 document.getElementById('btn-enable-notif').addEventListener('click', () => {
   if(window.Notification){
@@ -665,18 +1024,23 @@ renderDayToggle();
 renderLoadPips();
 renderCycles();
 renderDogStatus();
+renderDogMeals();
+renderDiaper();
 renderChores();
 renderFixed();
+renderCustomTasks();
 showCurrentTask();
 if(!state.nextNudgeAt) scheduleNextNudge();
 updateHorizon();
 updateNextHint();
 
 setInterval(() => {
+  rolloverIfNewDay(false);
   updateHorizon();
   updateNextHint();
   renderCycles();
   renderDogStatus();
+  renderDiaper();
   maybeFireNudge();
 }, 1000);
 
