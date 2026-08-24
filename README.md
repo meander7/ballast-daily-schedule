@@ -8,13 +8,13 @@ One steady "next thing" to hold onto, while the rest of the day moves around it.
 - `sw.js` — lets it load instantly and work offline once installed
 - `icon-192.png` / `icon-512.png` — app icons
 
-## Deploy (same pattern as Next Thing)
+<!--## Deploy (same pattern as Next Thing)
 1. Create a new GitHub repo (or a new folder in an existing pages repo).
 2. Upload all 5 files to the repo root.
 3. Turn on GitHub Pages for that repo (Settings → Pages → deploy from main branch).
 4. Visit the resulting URL (e.g. `yourname.github.io/ballast`) on your phone.
 5. In Chrome on Android, tap the menu → **Add to Home screen**. This installs it as a real app icon.
-6. Open the installed app once and tap **Turn on notifications** at the bottom.
+6. Open the installed app once and tap **Turn on notifications** at the bottom.-->
 
 ## How it works
 - **Right now card**: shows one tiny next action at a time, pulled from whatever's relevant to the current time block (plus any open "just for today" items). Tap **Done** to log it and get a new one right away, or **Not yet** to swap it for something else without penalty.
